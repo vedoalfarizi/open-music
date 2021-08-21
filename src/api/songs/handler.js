@@ -9,6 +9,7 @@ class SongHandler {
 
     this.postSongHandler = this.postSongHandler.bind(this);
     this.getSongsHandler = this.getSongsHandler.bind(this);
+    this.getSongByIdHandler = this.getSongByIdHandler.bind(this);
   }
 
   async postSongHandler(request, h) {
@@ -26,10 +27,18 @@ class SongHandler {
     return wrapper.successResponse(h, { songId }, 'Lagu berhasil ditambahkan', 201);
   }
 
-  async getSongsHandler(request, h) {
+  async getSongsHandler(h) {
     const songs = await this._service.getSongs();
 
     return wrapper.successResponse(h, { songs });
+  }
+
+  async getSongByIdHandler(request, h) {
+    const { songId } = request.params;
+
+    const song = await this._service.getSongById(songId);
+
+    return wrapper.successResponse(h, { song });
   }
 }
 
