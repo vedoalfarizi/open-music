@@ -1,11 +1,9 @@
 const logger = require('./logger');
 
 const successResponse = (h, data, message = null, code = 200) => {
-  const payload = {
-    status: 'success',
-    data,
-  };
+  const payload = { status: 'success' };
 
+  if (data) payload.data = data;
   if (message) payload.message = message;
 
   const res = h.response(payload);
