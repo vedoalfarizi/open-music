@@ -18,11 +18,11 @@ exports.up = (pgm) => {
     },
     genre: {
       type: 'varchar(16)',
-      notNull: true,
+      notNull: false,
     },
     duration: {
       type: 'integer',
-      notNull: true,
+      notNull: false,
     },
     insertedAt: {
       type: 'varchar(30)',
