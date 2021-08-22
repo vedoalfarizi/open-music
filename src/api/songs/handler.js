@@ -11,6 +11,7 @@ class SongHandler {
     this.getSongsHandler = this.getSongsHandler.bind(this);
     this.getSongByIdHandler = this.getSongByIdHandler.bind(this);
     this.putSongByIdHandler = this.putSongByIdHandler.bind(this);
+    this.deleteSongByIdHandler = this.deleteSongByIdHandler.bind(this);
   }
 
   async postSongHandler(request, h) {
@@ -48,6 +49,14 @@ class SongHandler {
     await this._service.editSongById(songId, request.payload);
 
     return wrapper.successResponse(h, null, 'lagu berhasil diperbarui');
+  }
+
+  async deleteSongByIdHandler(request, h) {
+    const { songId } = request.params;
+
+    await this._service.deleteSongById(songId);
+
+    return wrapper.successResponse(h, null, 'lagu berhasil dihapus');
   }
 }
 
