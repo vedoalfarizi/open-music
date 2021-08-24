@@ -1,7 +1,5 @@
 const wrapper = require('../../utils/wrapper');
 
-const { validateYear } = require('../../utils/common');
-
 class SongHandler {
   constructor(service, validator) {
     this._service = service;
@@ -14,45 +12,39 @@ class SongHandler {
     this.deleteSongByIdHandler = this.deleteSongByIdHandler.bind(this);
   }
 
-  async postSongHandler(request, h) {
-    this._validator.validateSongPayload(request.payload);
+  async postSongHandler({ payload }, h) {
+    this._validator.validateSongPayload(payload);
 
-    const { year } = request.payload;
-    await validateYear(year);
-
-    const songId = await this._service.addSong(request.payload);
+    const songId = await this._service.addSong(payload);
 
     return wrapper.successResponse(h, { songId }, 'Lagu berhasil ditambahkan', 201);
   }
 
-  async getSongsHandler(request, h) {
+  async getSongsHandler(_, h) {
     const songs = await this._service.getSongs();
 
     return wrapper.successResponse(h, { songs });
   }
 
-  async getSongByIdHandler(request, h) {
-    const { songId } = request.params;
+  async getSongByIdHandler({ payload, params }, h) {
+    const { songId } = params;
 
-    const song = await this._service.getSongById(songId, request.payload);
+    const song = await this._service.getSongById(songId, payload);
 
     return wrapper.successResponse(h, { song });
   }
 
-  async putSongByIdHandler(request, h) {
-    this._validator.validateSongPayload(request.payload);
+  async putSongByIdHandler({ payload, params }, h) {
+    this._validator.validateSongPayload(payload);
 
-    const { year } = request.payload;
-    await validateYear(year);
-
-    const { songId } = request.params;
-    await this._service.editSongById(songId, request.payload);
+    const { songId } = params;
+    await this._service.editSongById(songId, payload);
 
     return wrapper.successResponse(h, null, 'lagu berhasil diperbarui');
   }
 
-  async deleteSongByIdHandler(request, h) {
-    const { songId } = request.params;
+  async deleteSongByIdHandler({ params }, h) {
+    const { songId } = params;
 
     await this._service.deleteSongById(songId);
 
