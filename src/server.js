@@ -1,8 +1,14 @@
 require('dotenv').config();
 const Hapi = require('@hapi/hapi');
+const Jwt = require('@hapi/jwt');
 
 const logger = require('./utils/logger');
 const wrapper = require('./utils/wrapper');
+
+const auths = require('./api/auths');
+const AuthService = require('./services/postgres/AuthService');
+const tokenManager = require('./utils/tokenManager');
+const authValidator = require('./validator/auths');
 
 const SongService = require('./services/postgres/SongService');
 const songs = require('./api/songs');
@@ -17,6 +23,7 @@ const ctx = 'server';
 const init = async () => {
   const songService = new SongService();
   const userService = new UserService();
+  const authService = new AuthService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -26,6 +33,28 @@ const init = async () => {
         origin: ['*'],
       },
     },
+  });
+
+  await server.register([
+    {
+      plugin: Jwt,
+    },
+  ]);
+
+  server.auth.strategy('openMucicApp', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.userId,
+      },
+    }),
   });
 
   await server.register([
@@ -41,6 +70,15 @@ const init = async () => {
       options: {
         service: userService,
         validator: userValidator,
+      },
+    },
+    {
+      plugin: auths,
+      options: {
+        authService,
+        userService,
+        tokenManager,
+        validator: authValidator,
       },
     },
   ]);
