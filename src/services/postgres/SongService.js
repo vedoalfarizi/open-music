@@ -34,7 +34,7 @@ class SongService {
       values: [id],
     });
 
-    if (!result.rows.length) throw new NotFoundError('Lagu tidak ditemukan');
+    if (!result.rowCount) throw new NotFoundError('Lagu tidak ditemukan');
 
     return result.rows[0];
   }
@@ -47,7 +47,7 @@ class SongService {
       values: [...Object.values(payload), updatedAt, id],
     });
 
-    if (!result.rows.length) throw new NotFoundError('Gagal memperbarui lagu. Lagu tidak ditemukan');
+    if (!result.rowCount) throw new NotFoundError('Gagal memperbarui lagu. Lagu tidak ditemukan');
   }
 
   async deleteSongById(id) {
@@ -56,7 +56,7 @@ class SongService {
       values: [id],
     });
 
-    if (!result.rows.length) throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan');
+    if (!result.rowCount) throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan');
   }
 }
 
