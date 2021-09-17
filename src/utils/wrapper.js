@@ -13,7 +13,7 @@ const successResponse = (h, data, message = null, code = 200) => {
 };
 
 const errorResponse = (h, response) => {
-  if (!response.statusCode) { // Server Error
+  if (!response.statusCode && response.output.statusCode === 500) { // Server Error
     const res = h.response({
       status: 'fail',
       message: 'Maaf, terjadi kesalahan pada sistem kami',
@@ -27,9 +27,9 @@ const errorResponse = (h, response) => {
 
   const res = h.response({
     status: 'fail',
-    message: response.message,
+    message: response.message || response.output.message,
   });
-  res.code(response.statusCode);
+  res.code(response.statusCode || response.output.statusCode);
 
   return res;
 };

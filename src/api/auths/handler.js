@@ -9,6 +9,7 @@ class AuthHandler {
 
     this.postAuthHandler = this.postAuthHandler.bind(this);
     this.putAuthHandler = this.putAuthHandler.bind(this);
+    this.deleteAuthHandler = this.deleteAuthHandler.bind(this);
   }
 
   async postAuthHandler({ payload }, h) {
@@ -33,6 +34,15 @@ class AuthHandler {
     const accessToken = this._tokenManager.generateAccessToken({ userId });
 
     return wrapper.successResponse(h, { accessToken }, 'Authentication berhasil diperbarui');
+  }
+
+  async deleteAuthHandler({ payload }, h) {
+    this._validator.validateDeleteAuthPayload(payload);
+
+    const { refreshToken } = payload;
+    await this._authService.deleteRefreshToken(refreshToken);
+
+    return wrapper.successResponse(h, null, 'Refresh token berhasil dihapus');
   }
 }
 

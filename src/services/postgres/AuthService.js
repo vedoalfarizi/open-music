@@ -21,6 +21,15 @@ class Auth {
 
     if (!result.rowCount) throw new InvariantError('Refresh token tidak valid');
   }
+
+  async deleteRefreshToken(token) {
+    await this.verifyRefreshToken(token);
+
+    await this._pool.query({
+      text: 'DELETE FROM authentications WHERE token = $1',
+      values: [token],
+    });
+  }
 }
 
 module.exports = Auth;
