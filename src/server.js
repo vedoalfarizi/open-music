@@ -10,10 +10,6 @@ const AuthService = require('./services/postgres/AuthService');
 const tokenManager = require('./utils/tokenManager');
 const authValidator = require('./validator/auths');
 
-const PlaylistService = require('./services/postgres/PlaylistService');
-const playlists = require('./api/playlists');
-const playlistValidator = require('./validator/playlists');
-
 const SongService = require('./services/postgres/SongService');
 const songs = require('./api/songs');
 const songValidator = require('./validator/songs');
@@ -26,14 +22,23 @@ const UserService = require('./services/postgres/UserService');
 const users = require('./api/users');
 const userValidator = require('./validator/users');
 
+const CollaborationService = require('./services/postgres/CollaborationService');
+const collaborations = require('./api/collaborations');
+const collaborationValidator = require('./validator/collaborations');
+
+const PlaylistService = require('./services/postgres/PlaylistService');
+const playlists = require('./api/playlists');
+const playlistValidator = require('./validator/playlists');
+
 const ctx = 'server';
 
 const init = async () => {
   const authService = new AuthService();
-  const playlistService = new PlaylistService();
   const songService = new SongService();
   const songPlaylistService = new SongPlaylistService(songService);
   const userService = new UserService();
+  const collaborationService = new CollaborationService(userService);
+  const playlistService = new PlaylistService(collaborationService);
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -78,13 +83,6 @@ const init = async () => {
       },
     },
     {
-      plugin: playlists,
-      options: {
-        service: playlistService,
-        validator: playlistValidator,
-      },
-    },
-    {
       plugin: songs,
       options: {
         service: songService,
@@ -105,6 +103,22 @@ const init = async () => {
       options: {
         service: userService,
         validator: userValidator,
+      },
+    },
+    {
+      plugin: collaborations,
+      options: {
+        service: collaborationService,
+        validator: collaborationValidator,
+        playlistService,
+      },
+    },
+    {
+      plugin: playlists,
+      options: {
+        service: playlistService,
+        validator: playlistValidator,
+        collaborationService,
       },
     },
   ]);

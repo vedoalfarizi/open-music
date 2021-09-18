@@ -47,6 +47,15 @@ class UserService {
 
     return id;
   }
+
+  async verifyUserById(id) {
+    const result = await this._pool.query({
+      text: 'SELECT id FROM users where id = $1',
+      values: [id],
+    });
+
+    if (!result.rowCount) throw new InvariantError('ID user tidak valid');
+  }
 }
 
 module.exports = UserService;

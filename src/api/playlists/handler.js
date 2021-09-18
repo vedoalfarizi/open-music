@@ -1,9 +1,10 @@
 const wrapper = require('../../utils/wrapper');
 
 class PlaylistHandler {
-  constructor(service, validator) {
+  constructor(service, validator, collaborationService) {
     this._service = service;
     this._validator = validator;
+    this._collaborationService = collaborationService;
 
     this.postPlaylistHandler = this.postPlaylistHandler.bind(this);
     this.getPlaylistHandler = this.getPlaylistHandler.bind(this);
@@ -22,7 +23,10 @@ class PlaylistHandler {
   async getPlaylistHandler({ auth: { credentials } }, h) {
     const { id } = credentials;
 
-    const playlists = await this._service.getUserPlaylist(id);
+    const ownPlaylists = await this._service.getUserPlaylist(id);
+    const collabsPlaylist = await this._collaborationService.getCollabotarorPlaylist(id);
+
+    const playlists = [...ownPlaylists, ...collabsPlaylist];
     return wrapper.successResponse(h, { playlists });
   }
 

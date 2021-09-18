@@ -6,8 +6,9 @@ const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
 class PlaylistService {
-  constructor() {
+  constructor(collaborationService) {
     this._pool = new Pool();
+    this._collaborationService = collaborationService;
   }
 
   async addPlaylist(payload) {
@@ -57,6 +58,16 @@ class PlaylistService {
     const playlist = await this.getPlaylistById(playlistId);
 
     if (playlist.owner !== owner) throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
+  }
+
+  async verifyPlaylistUserAccess(playlistId, userId) {
+    const playlist = await this.getPlaylistById(playlistId);
+
+    if (playlist.owner !== userId) {
+      await this._collaborationService.verifyCollaborator(
+        playlistId, userId,
+      );
+    }
   }
 }
 
