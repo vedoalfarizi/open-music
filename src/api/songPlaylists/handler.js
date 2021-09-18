@@ -9,6 +9,7 @@ class SongPlaylistHandler {
 
     this.postSongPlaylistHandler = this.postSongPlaylistHandler.bind(this);
     this.getSongPlaylistHandler = this.getSongPlaylistHandler.bind(this);
+    this.deleteSongPlaylistByIdHandler = this.deleteSongPlaylistByIdHandler.bind(this);
   }
 
   async postSongPlaylistHandler({ auth: { credentials }, payload, params }, h) {
@@ -33,6 +34,19 @@ class SongPlaylistHandler {
     const songs = await this._service.getUserSongPlaylist(playlistId);
 
     return wrapper.successResponse(h, { songs }, null);
+  }
+
+  async deleteSongPlaylistByIdHandler({ auth: { credentials }, payload, params }, h) {
+    this._validator.validateDeleteSongPlaylist(payload);
+
+    const { id } = credentials;
+    const { songId } = payload;
+    const { playlistId } = params;
+
+    await this._playlistService.verifyPlaylistOwner(playlistId, id);
+    await this._service.deleteSongPlaylistById(songId, playlistId);
+
+    return wrapper.successResponse(h, null, 'Lagu berhasil dihapus dari playlist');
   }
 }
 

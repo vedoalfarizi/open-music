@@ -15,6 +15,14 @@ const routes = (handler) => [
       auth: 'openMucicApp',
     },
   },
+  {
+    method: 'DELETE',
+    path: '/playlists/{playlistId}/songs',
+    handler: handler.deleteSongPlaylistByIdHandler,
+    options: {
+      auth: 'openMucicApp',
+    },
+  },
 ];
 
 module.exports = routes;

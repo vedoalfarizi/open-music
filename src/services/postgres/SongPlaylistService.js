@@ -7,8 +7,9 @@ const {
 } = require('../../utils/model');
 
 class SongPlaylistService {
-  constructor() {
+  constructor(songService) {
     this._pool = new Pool();
+    this._songService = songService;
   }
 
   async verifySongAlreadyInPlaylist({ songId, playlistId }) {
@@ -44,6 +45,17 @@ class SongPlaylistService {
     });
 
     return result.rows.map(songPlaylistModel);
+  }
+
+  async deleteSongPlaylistById(songId, playlistId) {
+    await this._songService.verifySongId(songId);
+
+    const result = await this._pool.query({
+      text: 'DELETE FROM song_playlists WHERE song_id = $1 AND playlist_id = $2',
+      values: [songId, playlistId],
+    });
+
+    if (!result.rowCount) throw new InvariantError('Gagal menghapus lagu dari playlist');
   }
 }
 
