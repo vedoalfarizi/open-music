@@ -18,6 +18,17 @@ const songModel = ({
   updatedAt: updated_at,
 });
 
+const songPlaylistModel = ({
+  id,
+  title,
+  performer,
+}) => ({
+  id,
+  title,
+  performer,
+});
+
 module.exports = {
   songModel,
+  songPlaylistModel,
 };

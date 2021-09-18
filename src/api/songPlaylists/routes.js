@@ -7,6 +7,14 @@ const routes = (handler) => [
       auth: 'openMucicApp',
     },
   },
+  {
+    method: 'GET',
+    path: '/playlists/{playlistId}/songs',
+    handler: handler.getSongPlaylistHandler,
+    options: {
+      auth: 'openMucicApp',
+    },
+  },
 ];
 
 module.exports = routes;

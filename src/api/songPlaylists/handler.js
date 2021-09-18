@@ -8,6 +8,7 @@ class SongPlaylistHandler {
     this._playlistService = playlistService;
 
     this.postSongPlaylistHandler = this.postSongPlaylistHandler.bind(this);
+    this.getSongPlaylistHandler = this.getSongPlaylistHandler.bind(this);
   }
 
   async postSongPlaylistHandler({ auth: { credentials }, payload, params }, h) {
@@ -22,6 +23,16 @@ class SongPlaylistHandler {
     await this._service.addSongPlaylist({ songId, playlistId });
 
     return wrapper.successResponse(h, null, 'Lagu berhasil ditambahkan ke playlist', 201);
+  }
+
+  async getSongPlaylistHandler({ auth: { credentials }, params }, h) {
+    const { id } = credentials;
+    const { playlistId } = params;
+
+    await this._playlistService.verifyPlaylistOwner(playlistId, id);
+    const songs = await this._service.getUserSongPlaylist(playlistId);
+
+    return wrapper.successResponse(h, { songs }, null);
   }
 }
 
