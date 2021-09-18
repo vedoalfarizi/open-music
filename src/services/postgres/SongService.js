@@ -1,6 +1,10 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 
+const {
+  songModel,
+} = require('../../utils/model');
+
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
@@ -25,7 +29,7 @@ class SongService {
   async getSongs() {
     const result = await this._pool.query('SELECT id, title, performer FROM songs');
 
-    return result.rows;
+    return result.rows.map(songModel);
   }
 
   async getSongById(id) {
@@ -36,14 +40,14 @@ class SongService {
 
     if (!result.rowCount) throw new NotFoundError('Lagu tidak ditemukan');
 
-    return result.rows[0];
+    return songModel(result.rows[0]);
   }
 
   async editSongById(id, payload) {
     const updatedAt = new Date().toISOString();
 
     const result = await this._pool.query({
-      text: 'UPDATE songs SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, "updatedAt" = $6 WHERE id = $7 RETURNING id',
+      text: 'UPDATE songs SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, updated_at = $6 WHERE id = $7 RETURNING id',
       values: [...Object.values(payload), updatedAt, id],
     });
 

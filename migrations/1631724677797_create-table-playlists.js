@@ -12,11 +12,11 @@ exports.up = (pgm) => {
       type: 'VARCHAR(24)',
       notNull: true,
     },
-    insertedAt: {
+    inserted_at: {
       type: 'varchar(30)',
       notNull: true,
     },
-    updatedAt: {
+    updated_at: {
       type: 'varchar(30)',
       notNull: true,
     },

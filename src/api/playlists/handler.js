@@ -1,4 +1,3 @@
-const AuthorizationError = require('../../exceptions/AuthorizationError');
 const wrapper = require('../../utils/wrapper');
 
 class PlaylistHandler {
@@ -14,9 +13,9 @@ class PlaylistHandler {
   async postPlaylistHandler({ auth, payload }, h) {
     this._validator.validatePostPlaylist(payload);
 
-    const { id: owner } = auth.credentials;
+    const { id } = auth.credentials;
 
-    const playlistId = await this._service.addPlaylist({ ...payload, owner });
+    const playlistId = await this._service.addPlaylist({ ...payload, id });
     return wrapper.successResponse(h, { playlistId }, 'Playlist berhasil ditambahkan', 201);
   }
 
@@ -31,9 +30,7 @@ class PlaylistHandler {
     const { id } = credentials;
     const { playlistId } = params;
 
-    const playlist = await this._service.getPlaylistById(playlistId);
-    if (playlist.owner !== id) throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
-
+    await this._service.verifyPlaylistOwner(playlistId, id);
     await this._service.deletePlaylistById(playlistId);
 
     return wrapper.successResponse(h, null, 'Playlist berhasil dihapus');

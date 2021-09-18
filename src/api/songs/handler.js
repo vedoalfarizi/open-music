@@ -26,10 +26,10 @@ class SongHandler {
     return wrapper.successResponse(h, { songs });
   }
 
-  async getSongByIdHandler({ payload, params }, h) {
+  async getSongByIdHandler({ params }, h) {
     const { songId } = params;
 
-    const song = await this._service.getSongById(songId, payload);
+    const song = await this._service.getSongById(songId);
 
     return wrapper.successResponse(h, { song });
   }

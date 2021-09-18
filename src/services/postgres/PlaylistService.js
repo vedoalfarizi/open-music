@@ -1,5 +1,6 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
+const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
@@ -50,6 +51,12 @@ class PlaylistService {
       values: [id],
     });
     if (!result.rowCount) throw new NotFoundError('Playlist gagal dihapus. Id tidak ditemukan');
+  }
+
+  async verifyPlaylistOwner(playlistId, owner) {
+    const playlist = await this.getPlaylistById(playlistId);
+
+    if (playlist.owner !== owner) throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
   }
 }
 
