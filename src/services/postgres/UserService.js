@@ -17,7 +17,7 @@ class UserService {
       values: [username],
     });
 
-    if (result.rowCount > 0) throw new InvariantError('Gagal menambahkan user. Username sudah digunakan.');
+    if (result.rowCount) throw new InvariantError('Gagal menambahkan user. Username sudah digunakan.');
   }
 
   async addUser({ username, password, fullname }) {
