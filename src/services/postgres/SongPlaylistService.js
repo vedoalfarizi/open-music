@@ -7,9 +7,10 @@ const {
 } = require('../../utils/model');
 
 class SongPlaylistService {
-  constructor(songService) {
+  constructor(songService, cacheService) {
     this._pool = new Pool();
     this._songService = songService;
+    this._cacheService = cacheService;
   }
 
   async verifySongAlreadyInPlaylist({ songId, playlistId }) {
@@ -33,18 +34,28 @@ class SongPlaylistService {
 
     if (!result.rowCount) throw new InvariantError('Gagal menambahkan lagu ke dalam playlist');
 
+    await this._cacheService.delete(`songPlaylist:${payload.playlistId}`);
+
     return result.rows[0];
   }
 
   async getUserSongPlaylist(id) {
-    const result = await this._pool.query({
-      text: `SELECT song_playlists.playlist_id, songs.* FROM song_playlists
-      LEFT JOIN songs ON songs.id = song_playlists.song_id
-      WHERE song_playlists.playlist_id = $1`,
-      values: [id],
-    });
+    try {
+      const result = await this._cacheService.get(`songPlaylist:${id}`);
+      return JSON.parse(result);
+    } catch (error) {
+      const result = await this._pool.query({
+        text: `SELECT song_playlists.playlist_id, songs.* FROM song_playlists
+        LEFT JOIN songs ON songs.id = song_playlists.song_id
+        WHERE song_playlists.playlist_id = $1`,
+        values: [id],
+      });
 
-    return result.rows.map(songPlaylistModel);
+      const mappedResult = result.rows.map(songPlaylistModel);
+      await this._cacheService.set(`songPlaylist:${id}`, JSON.stringify(mappedResult));
+
+      return mappedResult;
+    }
   }
 
   async deleteSongPlaylistById(songId, playlistId) {
@@ -56,6 +67,8 @@ class SongPlaylistService {
     });
 
     if (!result.rowCount) throw new InvariantError('Gagal menghapus lagu dari playlist');
+
+    await this._cacheService.delete(`songPlaylist:${playlistId}`);
   }
 }
 
